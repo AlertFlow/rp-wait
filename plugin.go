@@ -30,6 +30,7 @@ func (p *WaitPlugin) Init() models.ActionDetails {
 	}
 
 	return models.ActionDetails{
+		ID:          "wait",
 		Name:        "Wait",
 		Description: "Waits for a specified amount of time",
 		Icon:        "solar:clock-circle-broken",
@@ -80,3 +81,5 @@ func (p *WaitPlugin) Execute(execution models.Execution, flow models.Flows, payl
 
 	return nil, true, false, false, false
 }
+
+var Plugin WaitPlugin
