@@ -8,6 +8,7 @@ import (
 	"gitlab.justlab.xyz/alertflow-public/runner/pkg/executions"
 	"gitlab.justlab.xyz/alertflow-public/runner/pkg/models"
 
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -22,7 +23,7 @@ func (p *WaitPlugin) Init() models.Plugin {
 	}
 }
 
-func (p *WaitPlugin) Details() models.ActionDetails {
+func (p *WaitPlugin) Details() models.PluginDetails {
 	params := []models.Param{
 		{
 			Key:         "WaitTime",
@@ -38,15 +39,17 @@ func (p *WaitPlugin) Details() models.ActionDetails {
 		log.Error(err)
 	}
 
-	return models.ActionDetails{
-		ID:          "wait",
-		Name:        "Wait",
-		Description: "Waits for a specified amount of time",
-		Icon:        "solar:clock-circle-broken",
-		Type:        "wait",
-		Category:    "General",
-		Function:    p.Execute,
-		Params:      json.RawMessage(paramsJSON),
+	return models.PluginDetails{
+		Action: models.ActionDetails{
+			ID:          "wait",
+			Name:        "Wait",
+			Description: "Waits for a specified amount of time",
+			Icon:        "solar:clock-circle-broken",
+			Type:        "wait",
+			Category:    "General",
+			Function:    p.Execute,
+			Params:      json.RawMessage(paramsJSON),
+		},
 	}
 }
 
@@ -90,5 +93,7 @@ func (p *WaitPlugin) Execute(execution models.Execution, flow models.Flows, payl
 
 	return nil, true, false, false, false
 }
+
+func (p *WaitPlugin) Handle(context *gin.Context) {}
 
 var Plugin WaitPlugin
