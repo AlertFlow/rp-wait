@@ -9,7 +9,7 @@ import (
 	"github.com/v1Flows/runner/pkg/executions"
 	"github.com/v1Flows/runner/pkg/plugins"
 
-	"github.com/v1Flows/alertFlow/services/backend/pkg/models"
+	"github.com/v1Flows/shared-library/pkg/models"
 
 	"github.com/hashicorp/go-plugin"
 )
@@ -31,8 +31,13 @@ func (p *Plugin) ExecuteTask(request plugins.ExecuteTaskRequest) (plugins.Respon
 	}
 
 	err := executions.UpdateStep(request.Config, request.Execution.ID.String(), models.ExecutionSteps{
-		ID:        request.Step.ID,
-		Messages:  []string{`Waiting for ` + strconv.Itoa(waitTime) + ` seconds`},
+		ID: request.Step.ID,
+		Messages: []models.Message{
+			{
+				Title: "Waiting",
+				Lines: []string{`Waiting for ` + strconv.Itoa(waitTime) + ` seconds`},
+			},
+		},
 		Status:    "paused",
 		StartedAt: time.Now(),
 	})
@@ -49,8 +54,13 @@ func (p *Plugin) ExecuteTask(request plugins.ExecuteTaskRequest) (plugins.Respon
 	executions.SetToRunning(request.Config, request.Execution)
 
 	err = executions.UpdateStep(request.Config, request.Execution.ID.String(), models.ExecutionSteps{
-		ID:         request.Step.ID,
-		Messages:   []string{"Wait Action finished"},
+		ID: request.Step.ID,
+		Messages: []models.Message{
+			{
+				Title: "Waiting",
+				Lines: []string{`Wait finished. Proceeding to next step`},
+			},
+		},
 		Status:     "success",
 		FinishedAt: time.Now(),
 	})
@@ -71,13 +81,13 @@ func (p *Plugin) HandleAlert(request plugins.AlertHandlerRequest) (plugins.Respo
 	}, errors.New("not implemented")
 }
 
-func (p *Plugin) Info() (models.Plugins, error) {
-	var plugin = models.Plugins{
+func (p *Plugin) Info() (models.Plugin, error) {
+	var plugin = models.Plugin{
 		Name:    "Wait",
 		Type:    "action",
 		Version: "1.1.2",
 		Author:  "JustNZ",
-		Actions: models.Actions{
+		Action: models.Action{
 			Name:        "Wait",
 			Description: "Waits for a specified amount of time",
 			Plugin:      "wait",
@@ -93,7 +103,7 @@ func (p *Plugin) Info() (models.Plugins, error) {
 				},
 			},
 		},
-		Endpoints: models.AlertEndpoints{},
+		Endpoint: models.Endpoint{},
 	}
 
 	return plugin, nil
@@ -116,7 +126,7 @@ func (s *PluginRPCServer) HandleAlert(request plugins.AlertHandlerRequest, resp 
 	return err
 }
 
-func (s *PluginRPCServer) Info(args interface{}, resp *models.Plugins) error {
+func (s *PluginRPCServer) Info(args interface{}, resp *models.Plugin) error {
 	result, err := s.Impl.Info()
 	*resp = result
 	return err
