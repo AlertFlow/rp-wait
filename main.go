@@ -85,7 +85,7 @@ func (p *Plugin) Info() (models.Plugin, error) {
 	var plugin = models.Plugin{
 		Name:    "Wait",
 		Type:    "action",
-		Version: "1.1.2",
+		Version: "1.1.3",
 		Author:  "JustNZ",
 		Action: models.Action{
 			Name:        "Wait",
