@@ -34,36 +34,36 @@ func (p *Plugin) ExecuteTask(request plugins.ExecuteTaskRequest) (plugins.Respon
 		ID: request.Step.ID,
 		Messages: []models.Message{
 			{
-				Title: "Waiting",
+				Title: "Wait",
 				Lines: []string{`Waiting for ` + strconv.Itoa(waitTime) + ` seconds`},
 			},
 		},
 		Status:    "paused",
 		StartedAt: time.Now(),
-	})
+	}, request.Platform)
 	if err != nil {
 		return plugins.Response{
 			Success: false,
 		}, err
 	}
 
-	executions.SetToPaused(request.Config, request.Execution)
+	executions.SetToPaused(request.Config, request.Execution, request.Platform)
 
 	time.Sleep(time.Duration(waitTime) * time.Second)
 
-	executions.SetToRunning(request.Config, request.Execution)
+	executions.SetToRunning(request.Config, request.Execution, request.Platform)
 
 	err = executions.UpdateStep(request.Config, request.Execution.ID.String(), models.ExecutionSteps{
 		ID: request.Step.ID,
 		Messages: []models.Message{
 			{
-				Title: "Waiting",
+				Title: "Wait",
 				Lines: []string{`Wait finished. Proceeding to next step`},
 			},
 		},
 		Status:     "success",
 		FinishedAt: time.Now(),
-	})
+	}, request.Platform)
 	if err != nil {
 		return plugins.Response{
 			Success: false,
@@ -75,7 +75,7 @@ func (p *Plugin) ExecuteTask(request plugins.ExecuteTaskRequest) (plugins.Respon
 	}, nil
 }
 
-func (p *Plugin) HandleAlert(request plugins.AlertHandlerRequest) (plugins.Response, error) {
+func (p *Plugin) EndpointRequest(request plugins.EndpointRequest) (plugins.Response, error) {
 	return plugins.Response{
 		Success: false,
 	}, errors.New("not implemented")
@@ -85,7 +85,7 @@ func (p *Plugin) Info() (models.Plugin, error) {
 	var plugin = models.Plugin{
 		Name:    "Wait",
 		Type:    "action",
-		Version: "1.1.3",
+		Version: "1.2.0",
 		Author:  "JustNZ",
 		Action: models.Action{
 			Name:        "Wait",
@@ -120,8 +120,8 @@ func (s *PluginRPCServer) ExecuteTask(request plugins.ExecuteTaskRequest, resp *
 	return err
 }
 
-func (s *PluginRPCServer) HandleAlert(request plugins.AlertHandlerRequest, resp *plugins.Response) error {
-	result, err := s.Impl.HandleAlert(request)
+func (s *PluginRPCServer) EndpointRequest(request plugins.EndpointRequest, resp *plugins.Response) error {
+	result, err := s.Impl.EndpointRequest(request)
 	*resp = result
 	return err
 }
