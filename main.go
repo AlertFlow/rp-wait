@@ -35,7 +35,11 @@ func (p *Plugin) ExecuteTask(request plugins.ExecuteTaskRequest) (plugins.Respon
 		Messages: []models.Message{
 			{
 				Title: "Wait",
-				Lines: []string{`Waiting for ` + strconv.Itoa(waitTime) + ` seconds`},
+				Lines: []models.Line{
+					{
+						Content: `Waiting for ` + strconv.Itoa(waitTime) + ` seconds`,
+					},
+				},
 			},
 		},
 		Status:    "paused",
@@ -58,7 +62,16 @@ func (p *Plugin) ExecuteTask(request plugins.ExecuteTaskRequest) (plugins.Respon
 		Messages: []models.Message{
 			{
 				Title: "Wait",
-				Lines: []string{`Wait finished. Proceeding to next step`},
+				Lines: []models.Line{
+					{
+						Content: "Wait finished",
+						Color:   "success",
+					},
+					{
+						Content: "Continuing to next step",
+						Color:   "success",
+					},
+				},
 			},
 		},
 		Status:     "success",
@@ -85,7 +98,7 @@ func (p *Plugin) Info(request plugins.InfoRequest) (models.Plugin, error) {
 	var plugin = models.Plugin{
 		Name:    "Wait",
 		Type:    "action",
-		Version: "1.2.1",
+		Version: "1.2.2",
 		Author:  "JustNZ",
 		Action: models.Action{
 			Name:        "Wait",
